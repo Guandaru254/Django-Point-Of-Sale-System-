@@ -1,6 +1,6 @@
 from pickle import FALSE
 from django.shortcuts import redirect, render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from flask import jsonify
 from posApp.models import Category, Products, Sales, salesItems
 from django.db.models import Count, Sum
@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+
 import json, sys
 from datetime import date, datetime
 
@@ -15,23 +16,30 @@ from datetime import date, datetime
 def login_user(request):
     logout(request)
     resp = {"status":'failed','msg':''}
-    username = ''
-    password = ''
-    if request.POST:
-        username = request.POST['username']
-        password = request.POST['password']
 
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                resp['status']='success'
+    # check if the request is post
+    if request.method == 'POST':
+        #safely retrieve username and password from POST data
+        username = request.POST.get('username','').strip()
+        password = request.POST.get('password','').strip()
+
+        if username and password:
+            # Authenticate the user
+
+            user = authenticate(request,username=username,password=password)
+            if user is not None:
+                if user.is_active:
+                    #log in the user
+                    login(request,user)
+                    resp['status'] = 'success'
+                    resp['msg'] = 'Login successully, redirecting...'
+                else:
+                    resp['msg'] = "Inactive account. Please contact management."
             else:
                 resp['msg'] = "Incorrect username or password"
         else:
-            resp['msg'] = "Incorrect username or password"
-    return HttpResponse(json.dumps(resp),content_type='application/json')
-
+            resp['msg'] = "username and password is required"
+    return JsonResponse(resp)
 #Logout
 def logoutuser(request):
     logout(request)
