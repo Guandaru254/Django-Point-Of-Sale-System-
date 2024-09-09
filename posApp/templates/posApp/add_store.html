@@ -1,0 +1,13 @@
+{% extends "posApp/base.html" %}
+{% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <h4 class="card-title mb-0">Add New Store</h4>
+        <form method="post" action="">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary bg-gradient">Add Store</button>
+        </form>
+    </div>
+</div>
+{% endblock pageContent %}

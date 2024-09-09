@@ -1,0 +1,81 @@
+<div class="container-fluid">
+    <form action="{% url 'edit_stock' %}" id="stock-form">
+        <input type="hidden" name="id" value="{% if stock.pk %}{{ stock.pk }}{% endif %}">
+
+        <div class="form-group mb-3">
+            <label for="product_name" class="control-label">Product Name</label>
+            <input type="text" name="product_name" id="product_name" class="form-control form-control-sm rounded-0" value="{% if stock.product_name %}{{ stock.product_name }}{% endif %}" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="quantity" class="control-label">Quantity</label>
+            <input type="number" name="quantity" id="quantity" class="form-control form-control-sm rounded-0" value="{% if stock.quantity %}{{ stock.quantity }}{% endif %}" required>
+        </div>
+
+        <!-- <div class="form-group mb-3">
+            <label for="store" class="control-label">Store</label>
+            <select name="store" id="store" class="form-select form-select-sm rounded-0" required>
+                <option value="" disabled selected>Select Store</option>
+                {% for store in stores %}
+                    <option value="{{ store.id }}" {% if stock.store.id == store.id %}selected{% endif %}>{{ store.name }}</option>
+                {% endfor %}
+            </select>
+        </div> -->
+
+        <div class="form-group mb-3">
+            <label for="reorder_level" class="control-label">Reorder Level</label>
+            <input type="number" name="reorder_level" id="reorder_level" class="form-control form-control-sm rounded-0" value="{% if stock.reorder_level %}{{ stock.reorder_level }}{% endif %}" required>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function() {
+        $('#stock-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this);
+            $('.err-msg').remove();
+            var el = $('<div>');
+            el.addClass("alert alert-danger err-msg");
+            el.hide();
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                url: "{% url 'edit_stock' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: function(err) {
+                    console.log(err);
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg");
+                        location.reload();
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg);
+                    } else {
+                        el.text("An error occurred");
+                        end_loader();
+                        console.err(resp);
+                    }
+                    _this.prepend(el);
+                    el.show('slow');
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader();
+                }
+            });
+        });
+    });
+</script>

@@ -3,23 +3,14 @@
     <div class="mdc-card">
         <div class="d-flex justify-content-between">
             <h4 class="card-title mb-0">Home Page</h4>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">home</i>
+            </div>
         </div>
     </div>
 </div>
 <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
     <hr class="w-100">
-</div>
-<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
-    <div class="mdc-card info-card info-card--success">
-        <div class="card-inner">
-            <h5 class="card-title">Categories</h5>
-            <h5 class="font-weight-light pb-2 mb-1 border-bottom">{{ categories|intcomma }}</h5>
-            <p class="tx-12 text-muted">Over All Count of Categories</p>
-            <div class="card-icon-wrapper">
-                <i class="material-icons">list</i>
-            </div>
-        </div>
-    </div>
 </div>
 <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
     <div class="mdc-card info-card info-card--primary">
@@ -48,11 +39,107 @@
 <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
     <div class="mdc-card info-card info-card--warning">
         <div class="card-inner">
-            <h5 class="card-title">Today's Sales</h5>
+            <h5 class="card-title">Product Sales</h5>
             <h5 class="font-weight-light pb-2 mb-1 border-bottom">{{ total_sales|intcomma }}</h5>
             <p class="tx-12 text-muted">Total Sales Today</p>
             <div class="card-icon-wrapper">
                 <i class="mdi mdi-cash-multiple"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Available Stock</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom">{{ stocks|intcomma }}</h5>
+            <p class="tx-12 text-muted">Available Stock in the system</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">stock</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Inventory</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom"></h5>
+            <p class="tx-12 text-muted">Available Inventory</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">storage</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Reports</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom"></h5>
+            <p class="tx-12 text-muted">Report Schematics</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">reports</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Debtors</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom"></h5>
+            <p class="tx-12 text-muted">Available Debtors</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">notes</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Creditors</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom"></h5>
+            <p class="tx-12 text-muted">Available Creditors</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">credit</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Security</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom"></h5>
+            <p class="tx-12 text-muted">Account Security</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">security</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Store</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom"></h5>
+            <p class="tx-12 text-muted">Available stores</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">stores</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Setup</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom"></h5>
+            <p class="tx-12 text-muted">Account Setup</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">info</i>
             </div>
         </div>
     </div>

@@ -1,88 +1,163 @@
 {% load humanize %}
 <style>
     #uni_modal .modal-footer {
-        display: none
+        display: none;
+    }
+    body {
+        font-family: 'Arial', sans-serif;
+        color: #333;
+        background-color: #f8f9fa;
+    }
+    .container-fluid {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        max-width: 450px;
+        margin: 20px auto;
+    }
+    #outprint {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .header small {
+        display: block;
+        font-weight: bold;
+        color: #007bff;
+    }
+    hr {
+        border: 0;
+        border-top: 1px solid #ddd;
+        margin: 10px 0;
+    }
+    .d-flex {
+        display: flex;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .text-end {
+        text-align: right;
+    }
+    .text-start {
+        text-align: left;
+    }
+    .fw-bold {
+        font-weight: bold;
+    }
+    .border-bottom {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+    }
+    .product-name {
+        color: #555;
+    }
+    .amount {
+        color: #333;
+    }
+    .totals {
+        margin-top: 15px;
+    }
+    .totals div {
+        padding: 5px 0;
+    }
+    .btn {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
+    .btn-light {
+        background-color: #f8f9fa;
+        color: #333;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: #fff;
+    }
+    .btn .mdi {
+        vertical-align: middle;
     }
 </style>
 <div class="container-fluid">
     <div id="outprint">
-        <div class="lh-1">
-            <center><small class="fw-bold">IMARA POS</small></center>
-            <center><small class="fw-bold">Unofficial Receipt</small></center>
+        <div class="header">
+            <small>IMARA POS</small>
+            <small>Unofficial Receipt</small>
         </div>
         <hr>
         <div class="lh-1">
             <div>
-                <span>Data:</span> {{ transaction.date_added|date:"M d Y" }} <br>
+                <span>Date:</span> {{ transaction.date_added|date:"M d Y" }} <br>
                 <span>Transaction Code:</span> {{ transaction.code }}
             </div>
         </div>
-        <div class="clear-fix py-3"></div>
+        <hr>
         <div class="lh-1">
-            <div class="d-flex w-100 align-items-end border-bottom">
+            <div class="d-flex border-bottom">
                 <div class="col-2 text-center fw-bold">Qty</div>
                 <div class="col-6 text-center fw-bold">Product</div>
                 <div class="col-4 text-center fw-bold">Amount</div>
             </div>
             {% for item in salesItems %}
-            <div class="d-flex w-100 align-items-end">
-                <div class="col-2 text-center fw-bold">{{ item.qty|intcomma|floatformat:0 }}</div>
-                <div class="col-6 fw-bold">
-                    <div class="lh-1">
-                        <small>{{ item.product_id }}</small><br>
-                        <small>{{ item.price|intcomma }}</small><br>
-                    </div>
+            <div class="d-flex">
+                <div class="col-2 text-center">{{ item.qty|intcomma|floatformat:0 }}</div>
+                <div class="col-6">
+                    <div class="product-name">{{ item.product_id }}</div>
+                    <small class="amount">{{ item.price|intcomma }}</small>
                 </div>
-                <div class="col-4 text-end fw-bold">{{ item.total|intcomma }}</div>
+                <div class="col-4 text-end">{{ item.total|intcomma }}</div>
             </div>
             {% endfor %}
-            <hr>
-            <div class="d-flex w-100 align-items-end">
+        </div>
+        <div class="totals">
+            <div class="d-flex">
                 <div class="col-6 text-start fw-bold">Total</div>
                 <div class="col-6 text-end fw-bold">{{ transaction.grand_total|intcomma }}</div>
             </div>
-            <div class="d-flex w-100 align-items-end">
-                <div class="col-6 text-start fw-bold">Tax <small>(inclusive)</small>: {{ transaction.tax|intcomma }}%</div>
-                <div class="col-6 text-end fw-bold">{{ transaction.tax_amount|intcomma|floatformat:2 }}</div>
+            <div class="d-flex">
+                <div class="col-6 text-start fw-bold">Tax <small>(inclusive)</small>:</div>
+                <div class="col-6 text-end">{{ transaction.tax_amount|intcomma|floatformat:2 }}</div>
             </div>
-            <div class="d-flex w-100 align-items-end">
-                <div class="col-6 text-start fw-bold">Tenedered</div>
-                <div class="col-6 text-end fw-bold">{{ transaction.tendered_amount|intcomma }}</div>
+            <div class="d-flex">
+                <div class="col-6 text-start fw-bold">Tendered</div>
+                <div class="col-6 text-end">{{ transaction.tendered_amount|intcomma }}</div>
             </div>
-            <div class="d-flex w-100 align-items-end">
+            <div class="d-flex">
                 <div class="col-6 text-start fw-bold">Change</div>
-                <div class="col-6 text-end fw-bold">{{ transaction.amount_change|intcomma }}</div>
+                <div class="col-6 text-end">{{ transaction.amount_change|intcomma }}</div>
             </div>
         </div>
     </div>
     <hr>
-    <div class="clear-fix py-3"></div>
-    <div class="d-flex w-100 justify-content-end">
-        <button class="btn btn-light bg-gradient border rounded-0 btn-sm me-1" type="button" id="receipt_print"><i class="mdi mdi-printer"></i> Print</button>
-        <button class="btn btn-secondary bg-gradient border rounded-0 btn-sm" type="button" data-bs-dismiss="modal"><i class="mdi mdi-close"></i> Close</button>
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-light border rounded-0 btn-sm me-1" type="button" id="receipt_print"><i class="mdi mdi-printer"></i> Print</button>
+        <button class="btn btn-secondary border rounded-0 btn-sm" type="button" data-bs-dismiss="modal"><i class="mdi mdi-close"></i> Close</button>
     </div>
 </div>
 <script>
     $(function() {
         $('#receipt_print').click(function() {
-            var head = $('head').clone()
-            var p = $('#outprint').clone()
-            var el = $("<div>")
-            head.append('<style>body{background-color:unset !important}</style>')
-            el.append(head)
-            el.find('title').text("Receipt - Print View")
-            el.append(p)
-            start_loader()
-            var nw = window.open('', '_blank', "width=800,height=800,left=300, top = 200")
-            nw.document.write(el.html())
-            nw.document.close()
+            var head = $('head').clone();
+            var p = $('#outprint').clone();
+            var el = $("<div>");
+            head.append('<style>body{background-color:unset !important}</style>');
+            el.append(head);
+            el.find('title').text("Receipt - Print View");
+            el.append(p);
+            start_loader();
+            var nw = window.open('', '_blank', "width=800,height=800,left=300, top = 200");
+            nw.document.write(el.html());
+            nw.document.close();
             setTimeout(() => {
-                nw.print()
+                nw.print();
                 setTimeout(() => {
-                    nw.close()
-                    end_loader()
-                }, 250)
-            }, 300)
-        })
-    })
+                    nw.close();
+                    end_loader();
+                }, 250);
+            }, 300);
+        });
+    });
 </script>

@@ -1,13 +1,20 @@
 from pickle import FALSE
-from django.shortcuts import redirect, render
-from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse, JsonResponse
+from django.views import View
 from flask import jsonify
-from posApp.models import Category, Products, Sales, salesItems
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView,CreateView,UpdateView
+from posApp.forms import CreditorForm, DebtorForm, StockForm, StoreForm
+from posApp.models import Category, Creditor, Debtors, Products, Sales, Store, salesItems,Stock
 from django.db.models import Count, Sum
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils.dateparse import parse_date
+
 import json, sys
 from datetime import date, datetime
 
@@ -15,23 +22,30 @@ from datetime import date, datetime
 def login_user(request):
     logout(request)
     resp = {"status":'failed','msg':''}
-    username = ''
-    password = ''
-    if request.POST:
-        username = request.POST['username']
-        password = request.POST['password']
 
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                resp['status']='success'
+    # check if the request is post
+    if request.method == 'POST':
+        #safely retrieve username and password from POST data
+        username = request.POST.get('username','').strip()
+        password = request.POST.get('password','').strip()
+
+        if username and password:
+            # Authenticate the user
+
+            user = authenticate(request,username=username,password=password)
+            if user is not None:
+                if user.is_active:
+                    #log in the user
+                    login(request,user)
+                    resp['status'] = 'success'
+                    resp['msg'] = 'Login successully, redirecting...'
+                else:
+                    resp['msg'] = "Inactive account. Please contact management."
             else:
                 resp['msg'] = "Incorrect username or password"
         else:
-            resp['msg'] = "Incorrect username or password"
-    return HttpResponse(json.dumps(resp),content_type='application/json')
-
+            resp['msg'] = "username and password is required"
+    return JsonResponse(resp)
 #Logout
 def logoutuser(request):
     logout(request)
@@ -197,6 +211,8 @@ def delete_product(request):
     except:
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#point of sale
 @login_required
 def pos(request):
     products = Products.objects.filter(status = 1)
@@ -257,6 +273,7 @@ def save_pos(request):
         print("Unexpected error:", sys.exc_info()[0])
     return HttpResponse(json.dumps(resp),content_type="application/json")
 
+#Sales
 @login_required
 def salesList(request):
     sales = Sales.objects.all()
@@ -280,6 +297,42 @@ def salesList(request):
     # return HttpResponse('')
     return render(request, 'posApp/sales.html',context)
 
+
+@login_required
+def delete_sale(request):
+    resp = {'status':'failed', 'msg':''}
+    id = request.POST.get('id')
+    try:
+        delete = Sales.objects.filter(id = id).delete()
+        resp['status'] = 'success'
+        messages.success(request, 'Sale Record has been deleted.')
+    except:
+        resp['msg'] = "An error occured"
+        print("Unexpected error:", sys.exc_info()[0])
+    return HttpResponse(json.dumps(resp), content_type='application/json')
+
+@login_required
+def sales_report(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if start_date and end_date:
+        start_date = parse_date(start_date)
+        end_date = parse_date(end_date)
+        sales = Sales.objects.filter(date_added__range=[start_date, end_date])
+    else:
+        sales = Sales.objects.all()
+    
+    total_sales = sales.aggregate(Sum('grand_total'))['grand_total__sum']
+    
+    context = {
+        'sales': sales,
+        'total_sales': total_sales
+    }
+    
+    return render(request, 'posApp/sales_report.html', context)
+
+#Receipt
 @login_required
 def receipt(request):
     id = request.GET.get('id')
@@ -299,15 +352,134 @@ def receipt(request):
     return render(request, 'posApp/receipt.html',context)
     # return HttpResponse('')
 
-@login_required
-def delete_sale(request):
-    resp = {'status':'failed', 'msg':''}
-    id = request.POST.get('id')
-    try:
-        delete = Sales.objects.filter(id = id).delete()
-        resp['status'] = 'success'
-        messages.success(request, 'Sale Record has been deleted.')
-    except:
-        resp['msg'] = "An error occured"
-        print("Unexpected error:", sys.exc_info()[0])
-    return HttpResponse(json.dumps(resp), content_type='application/json')
+ 
+def delete_stock(request,pk):
+        stock = get_object_or_404(Stock,pk=pk)
+        stock.delete()
+        return JsonResponse({'status': 'success'})
+
+def debtor_list(request):
+    debtors = Debtors.objects.all()
+
+    return render(request,'posApp/debtor_list.html',{'debtors': debtors})
+
+class DebtorCreateView(CreateView):
+    model = Debtors
+    form_class = DebtorForm
+    template_name = 'posApp/manage_debtor.html'
+    success_url = '/debtors/'
+
+class DebtorUpdateView(UpdateView):
+    model = Debtors
+    form_class = DebtorForm
+    template_name = 'posApp/manage_debtor.html'
+    success_url = '/debtors/'
+
+@csrf_exempt
+def delete_debtor(request):
+    if request.method == 'POST':
+        try:
+            debtor_id = request.POST.get('id')
+            debtor = Debtors.objects.get(pk=debtor_id)
+            debtor.delete()
+            return JsonResponse({'status': 'success'})
+        except Debtors.DoesNotExist:
+            return JsonResponse({'status': 'error','message': 'Debtor not found'})
+    return JsonResponse({'status':'erro','message': 'Invalid request,please try again later'})
+
+def manage_debtor(request,pk=None):
+    if pk:
+        debtor = get_object_or_404(Debtors,pk=pk)
+    else:
+        debtor = None
+
+    if request.method == 'POST':
+        form = DebtorForm(request.POST,instance=debtor)
+        if form.is_valid():
+            form.save()
+            return redirect('debtors-page')
+        else:
+            form = DebtorForm(instance=debtor)
+
+    return render(request,'manage_debtor.html',{'form': form})
+
+def creditors(request):
+    creditors = Creditor.objects.all()
+    return render(request,'posApp/creditors.html',{'creditors': creditors})
+
+def manage_creditor(request,pk=None):
+    if pk:
+        creditor = get_object_or_404(Creditor,pk=pk)
+    else:
+        creditor = None
+
+    if request.method == 'POST':
+        form = CreditorForm(request.POST,instance=creditor)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success'})
+    else:
+        form = CreditorForm(instance=creditor)
+    
+    return render(request,'posApp/manage_creditors.html',{'form': form})
+
+def delete_creditor(request):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        creditor = get_object_or_404(Creditor,pk=id)
+        creditor.delete()
+        return JsonResponse({'status': 'success'})
+    
+def stock_dashboard(request):
+    stores = Store.objects.all()
+    selected_store_id = request.GET.get('store', '')
+
+    if selected_store_id:
+        # Filter stocks by the selected store ID
+        stocks = Stock.objects.filter(store_id=selected_store_id)
+    else:
+        # Display all stocks if no store is selected
+        stocks = Stock.objects.all()
+
+    context = {
+        'stocks': stocks,
+        'stores': stores,
+        'selected_store_id': selected_store_id,  # Pass the selected store ID to the template
+    }
+    return render(request, 'posApp/stock_list.html', context)
+
+def add_store(request):
+    if request.method == 'POST':
+        form = StoreForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success'})
+    else:
+        form = StoreForm()
+    return render(request, 'posApp/add_store.html', {'form': form})
+
+def edit_stock(request):
+    stock_id = request.GET.get('id')
+    stock = get_object_or_404(Stock, id=stock_id)
+
+    if request.method == 'POST':
+        form = StockForm(request.POST, instance=stock)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success'})
+    else:
+        form = StockForm(instance=stock)
+    
+    return render(request, 'posApp/edit_stock.html', {'form': form, 'stock': stock})
+
+
+
+def delete_stock(request):
+    if request.method == 'POST':
+        stock_id = request.POST.get('id')
+        try:
+            stock = Stock.objects.get(id=stock_id)
+            stock.delete()
+            return JsonResponse({'status': 'success'})
+        except Stock.DoesNotExist:
+            return JsonResponse({'status': 'error'})

@@ -30,4 +30,18 @@ urlpatterns = [
     # path('save_employee', views.save_employee, name="save-employee-page"),
     # path('delete_employee', views.delete_employee, name="delete-employee"),
     # path('view_employee', views.view_employee, name="view-employee-page"),
+    path('stocks',views.stock_dashboard,name='stock_list'),
+    path('add-store/', views.add_store, name='add_store'),
+    path('edit-stock/', views.edit_stock, name='edit_stock'),
+    path('delete-stock/', views.delete_stock, name='delete_stock'),
+    
+    path('sales-report/', views.sales_report, name='sales_report'),
+    path('debtors/',views.debtor_list,name='debtors_list'),
+    path('debtors/add',views.DebtorCreateView.as_view(),name='manage_debtors-page'),
+    path('debtors/edit/<int:pk>/',views.DebtorUpdateView.as_view(),name='manage_debtors-page'),
+    path('debtors/delete',views.delete_debtor,name='delete-debtor'),
+    path('debtors/manage/<int:pk>/',views.manage_debtor,name='manage_debtors-page'),
+    path('creditors/',views.creditors,name='creditors-page'),
+    path('creditor/manage/<int:pk>/',views.manage_creditor,name='manage_creditors-page'),
+    path('creditor/delete',views.delete_creditor,name='delete-creditor'),
 ]
